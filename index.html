@@ -24,7 +24,7 @@ body {
   overflow: hidden;
 }
 
-/* ---------- BACKGROUND LAYERS ---------- */
+/* ---------- BACKGROUND ---------- */
 .bg-glow {
   position: fixed;
   inset: 0;
@@ -36,25 +36,11 @@ body {
 }
 
 @keyframes glowMove {
-  0% { transform: scale(1); }
-  100% { transform: scale(1.1); }
+  from { transform: scale(1); }
+  to { transform: scale(1.1); }
 }
 
-.particles span {
-  position: absolute;
-  width: 6px;
-  height: 6px;
-  background: rgba(255,255,255,0.15);
-  border-radius: 50%;
-  animation: floatUp 10s linear infinite;
-}
-
-@keyframes floatUp {
-  from { transform: translateY(100vh); opacity: 0; }
-  to { transform: translateY(-10vh); opacity: 1; }
-}
-
-/* ---------- PAGE STRUCTURE ---------- */
+/* ---------- PAGES ---------- */
 .page {
   position: absolute;
   inset: 0;
@@ -70,7 +56,7 @@ body {
   display: flex;
 }
 
-/* ---------- TEXT ANIMATIONS ---------- */
+/* ---------- TEXT ---------- */
 h1 {
   font-size: 1.9rem;
   margin-bottom: 12px;
@@ -95,7 +81,7 @@ p {
 
 /* ---------- BUTTON ---------- */
 button {
-  margin-top: 30px;
+  margin-top: 28px;
   padding: 14px 34px;
   border-radius: 40px;
   border: none;
@@ -103,6 +89,23 @@ button {
   color: white;
   font-size: 1rem;
   font-weight: 600;
+}
+
+/* Hold button */
+.hold-btn {
+  margin-top: 18px;
+  background: rgba(255,255,255,0.08);
+  padding: 12px 26px;
+  border-radius: 30px;
+  font-size: 0.95rem;
+  user-select: none;
+}
+
+.hold-reveal {
+  margin-top: 14px;
+  font-size: 0.9rem;
+  opacity: 0;
+  transition: opacity 0.6s ease;
 }
 
 /* ---------- TIMER ---------- */
@@ -152,14 +155,6 @@ button {
 
 <div class="bg-glow"></div>
 
-<div class="particles">
-  <!-- subtle floating dots -->
-  <span style="left:10%;animation-delay:0s"></span>
-  <span style="left:30%;animation-delay:2s"></span>
-  <span style="left:55%;animation-delay:4s"></span>
-  <span style="left:80%;animation-delay:1s"></span>
-</div>
-
 <!-- PAGE 1 -->
 <div class="page active" id="page1">
   <h1>The day is approaching fast…</h1>
@@ -170,14 +165,33 @@ button {
 <!-- PAGE 2 -->
 <div class="page" id="page2">
   <h1>Only a few days left</h1>
-  <p>For the biggest day of the year for someone very special 💫</p>
+
+  <p id="changingLine">
+    For the biggest day of the year for someone very special 💫
+  </p>
+
+  <div 
+    class="hold-btn"
+    id="holdBtn"
+    ontouchstart="startHold()"
+    ontouchend="cancelHold()"
+    onmousedown="startHold()"
+    onmouseup="cancelHold()"
+  >
+    Hold for a second
+  </div>
+
+  <div class="hold-reveal" id="holdReveal">
+    Okay, now you can go 😄
+  </div>
+
   <button onclick="nextPage()">Reveal</button>
 </div>
 
 <!-- PAGE 3 -->
 <div class="page" id="page3">
   <h1>🎉 Happy Birthday Ashpita 🎉</h1>
-  <p>This page exists for one reason to count every second until your day 💖</p>
+  <p>This is just a small reminder that your day matters and so do you</p>
 
   <div class="timer">
     <div class="box"><span id="d">0</span>Days</div>
@@ -186,12 +200,16 @@ button {
     <div class="box"><span id="s">0</span>Sec</div>
   </div>
 
-<p>Waiting patiently😌<br> Okay, maybe not that patiently</p>
+  <p style="margin-top:18px;">
+  Waiting patiently<br>
+Okay, maybe not that patiently.
+  </p>
 </div>
 
 <div class="confetti" id="confetti"></div>
 
 <script>
+/* ---------- PAGE FLOW ---------- */
 let current = 1;
 function nextPage() {
   document.getElementById(`page${current}`).classList.remove("active");
@@ -202,16 +220,14 @@ function nextPage() {
 
 /* ---------- COUNTDOWN ---------- */
 const target = new Date("January 11, 2026 00:00:00").getTime();
-
 setInterval(() => {
-  const now = Date.now();
-  const diff = target - now;
+  const diff = target - Date.now();
   if (diff <= 0) return;
 
-  document.getElementById("d").innerText = Math.floor(diff / 86400000);
-  document.getElementById("h").innerText = Math.floor((diff / 3600000) % 24);
-  document.getElementById("m").innerText = Math.floor((diff / 60000) % 60);
-  document.getElementById("s").innerText = Math.floor((diff / 1000) % 60);
+  d.innerText = Math.floor(diff / 86400000);
+  h.innerText = Math.floor((diff / 3600000) % 24);
+  m.innerText = Math.floor((diff / 60000) % 60);
+  s.innerText = Math.floor((diff / 1000) % 60);
 }, 1000);
 
 /* ---------- CONFETTI ---------- */
@@ -224,6 +240,43 @@ function startConfetti() {
     piece.style.setProperty("--hue", Math.random() * 360);
     c.appendChild(piece);
   }
+}
+
+/* ---------- AUTO CHANGING TEXT (PAGE 2) ---------- */
+const lines = [
+  "For the biggest day of the year for someone very special 💫",
+  "Still counting…",
+  "Almost there…",
+  "Time’s doing its thing…"
+];
+
+let index = 0;
+setInterval(() => {
+  const el = document.getElementById("changingLine");
+  if (!el) return;
+  index = (index + 1) % lines.length;
+  el.style.opacity = 0;
+  setTimeout(() => {
+    el.innerText = lines[index];
+    el.style.opacity = 0.85;
+  }, 400);
+}, 12000);
+
+// After ~25 seconds
+setTimeout(() => {
+  const el = document.getElementById("changingLine");
+  if (el) el.innerText = "Still here? 👀";
+}, 25000);
+
+/* ---------- HOLD TO REVEAL ---------- */
+let holdTimer;
+function startHold() {
+  holdTimer = setTimeout(() => {
+    document.getElementById("holdReveal").style.opacity = 1;
+  }, 3000);
+}
+function cancelHold() {
+  clearTimeout(holdTimer);
 }
 </script>
 
