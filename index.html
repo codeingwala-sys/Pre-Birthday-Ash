@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Something's Coming</title>
+
+<style>
+:root {
+  --bg: #0b0f1a;
+  --accent: #ff4d6d;
+  --soft: #9aa4ff;
+}
+
+* {
+  box-sizing: border-box;
+  font-family: "Poppins", sans-serif;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: white;
+  overflow: hidden;
+}
+
+/* ---------- BACKGROUND LAYERS ---------- */
+.bg-glow {
+  position: fixed;
+  inset: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(255,77,109,0.18), transparent 40%),
+    radial-gradient(circle at 80% 70%, rgba(154,164,255,0.15), transparent 45%);
+  animation: glowMove 12s infinite alternate;
+  z-index: -2;
+}
+
+@keyframes glowMove {
+  0% { transform: scale(1); }
+  100% { transform: scale(1.1); }
+}
+
+.particles span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 50%;
+  animation: floatUp 10s linear infinite;
+}
+
+@keyframes floatUp {
+  from { transform: translateY(100vh); opacity: 0; }
+  to { transform: translateY(-10vh); opacity: 1; }
+}
+
+/* ---------- PAGE STRUCTURE ---------- */
+.page {
+  position: absolute;
+  inset: 0;
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 24px;
+  text-align: center;
+}
+
+.page.active {
+  display: flex;
+}
+
+/* ---------- TEXT ANIMATIONS ---------- */
+h1 {
+  font-size: 1.9rem;
+  margin-bottom: 12px;
+  animation: slideIn 1.2s ease forwards;
+}
+
+p {
+  font-size: 1.05rem;
+  opacity: 0.85;
+  animation: fadeUp 1.5s ease forwards;
+}
+
+@keyframes slideIn {
+  from { transform: translateY(25px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes fadeUp {
+  from { transform: translateY(15px); opacity: 0; }
+  to { transform: translateY(0); opacity: 0.85; }
+}
+
+/* ---------- BUTTON ---------- */
+button {
+  margin-top: 30px;
+  padding: 14px 34px;
+  border-radius: 40px;
+  border: none;
+  background: linear-gradient(135deg, var(--accent), var(--soft));
+  color: white;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+/* ---------- TIMER ---------- */
+.timer {
+  display: flex;
+  gap: 14px;
+  margin-top: 24px;
+}
+
+.box {
+  background: rgba(255,255,255,0.08);
+  padding: 14px;
+  border-radius: 14px;
+  min-width: 70px;
+}
+
+.box span {
+  font-size: 1.4rem;
+  font-weight: bold;
+  display: block;
+}
+
+/* ---------- CONFETTI ---------- */
+.confetti {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+}
+
+.confetti span {
+  position: absolute;
+  width: 8px;
+  height: 14px;
+  background: hsl(var(--hue), 80%, 60%);
+  animation: fall 3s linear infinite;
+}
+
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(360deg);
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="bg-glow"></div>
+
+<div class="particles">
+  <!-- subtle floating dots -->
+  <span style="left:10%;animation-delay:0s"></span>
+  <span style="left:30%;animation-delay:2s"></span>
+  <span style="left:55%;animation-delay:4s"></span>
+  <span style="left:80%;animation-delay:1s"></span>
+</div>
+
+<!-- PAGE 1 -->
+<div class="page active" id="page1">
+  <h1>The day is approaching fast…</h1>
+  <p>Something important is getting closer with every passing second</p>
+  <button onclick="nextPage()">Keep going</button>
+</div>
+
+<!-- PAGE 2 -->
+<div class="page" id="page2">
+  <h1>Only a few days left</h1>
+  <p>For the biggest day of the year for someone very special 💫</p>
+  <button onclick="nextPage()">Reveal</button>
+</div>
+
+<!-- PAGE 3 -->
+<div class="page" id="page3">
+  <h1>🎉 Happy Birthday Ashpita 🎉</h1>
+  <p>This page exists for one reason to count every second until your day 💖</p>
+
+  <div class="timer">
+    <div class="box"><span id="d">0</span>Days</div>
+    <div class="box"><span id="h">0</span>Hours</div>
+    <div class="box"><span id="m">0</span>Min</div>
+    <div class="box"><span id="s">0</span>Sec</div>
+  </div>
+
+<p>Waiting patiently😌<br> Okay, maybe not that patiently</p>
+</div>
+
+<div class="confetti" id="confetti"></div>
+
+<script>
+let current = 1;
+function nextPage() {
+  document.getElementById(`page${current}`).classList.remove("active");
+  current++;
+  document.getElementById(`page${current}`).classList.add("active");
+  if (current === 3) startConfetti();
+}
+
+/* ---------- COUNTDOWN ---------- */
+const target = new Date("January 11, 2026 00:00:00").getTime();
+
+setInterval(() => {
+  const now = Date.now();
+  const diff = target - now;
+  if (diff <= 0) return;
+
+  document.getElementById("d").innerText = Math.floor(diff / 86400000);
+  document.getElementById("h").innerText = Math.floor((diff / 3600000) % 24);
+  document.getElementById("m").innerText = Math.floor((diff / 60000) % 60);
+  document.getElementById("s").innerText = Math.floor((diff / 1000) % 60);
+}, 1000);
+
+/* ---------- CONFETTI ---------- */
+function startConfetti() {
+  const c = document.getElementById("confetti");
+  for (let i = 0; i < 40; i++) {
+    const piece = document.createElement("span");
+    piece.style.left = Math.random() * 100 + "vw";
+    piece.style.animationDelay = Math.random() * 3 + "s";
+    piece.style.setProperty("--hue", Math.random() * 360);
+    c.appendChild(piece);
+  }
+}
+</script>
+
+</body>
+</html>
